@@ -24,5 +24,13 @@ export function createScene() {
   const axes = new THREE.AxesHelper(10);
   axes.position.set(0, 0, 0);
   scene.add(axes);
+  
+  const light = new THREE.DirectionalLight(0xffffff, 0.5);
+  light.position.set(10, 100, 10);
+  light.lookAt(0, 0, 0);
+  scene.add(light);
+  
+  const amb = new THREE.AmbientLight(0xffffff, 0.3);
+  scene.add(amb);
   return scene;
 };

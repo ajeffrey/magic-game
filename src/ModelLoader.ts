@@ -8,14 +8,14 @@ const gltfLoader = new GLTFLoader();
 const colladaLoader = new ColladaLoader();
 const fbxLoader = new FBXLoader();
 
-class ModelCollection {
+export class ModelCollection {
   private models: {[key: string]: THREE.Object3D};
 
   constructor() {
     this.models = {};
   }
 
-  get(name: string) {
+  get(name: string): THREE.Object3D {
     if(name in this.models) {
       const skele = (SkeletonUtils as any).clone(this.models[name]);
       skele.traverse(obj => {

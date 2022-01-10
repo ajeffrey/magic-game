@@ -4,14 +4,14 @@ function clamp(val: number, min: number, max: number) {
   return Math.min(max, Math.max(val, min));
 };
 
-// https://easings.net/#easeOutQuart
-function easeOutQuart(x: number): number {
-  return 1 - Math.pow(1 - x, 4);
+// https://easings.net/#easeOutExpo
+function ease(x: number): number {
+  return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
 };
 
 interface IZoom {
   start: number;
-  change: number;
+  end: number;
   elapsed: number;
   duration: number;
 }
@@ -19,10 +19,18 @@ interface IZoom {
 export class Camera {
   readonly camera: THREE.OrthographicCamera;
   private zooming: IZoom | null;
+  private perspective: 'iso' | 'overhead' = 'iso';
 
   constructor() {
     this.zooming = null;
     this.camera = this.createCamera();
+    this.setPerspective('iso');
+
+    window.addEventListener('keypress', e => {
+      if(e.key === ' ') {
+        this.setPerspective(this.perspective === 'iso' ? 'overhead' : 'iso');
+      }
+    })
 
     window.addEventListener('resize', () => {
       const width = window.innerWidth / 2;
@@ -32,27 +40,29 @@ export class Camera {
     });
 
     window.addEventListener('wheel', (e) => {
-      const change = clamp(this.camera.zoom + (-e.deltaY / 10), 25, 100) - this.camera.zoom;
-      console.log(change);
+      const start = this.camera.zoom;
+      const startFrom = this.camera.zoom;
+      const end = clamp(startFrom + (-e.deltaY / 10), 25, 100);
+      const duration = Math.max(0.25, Math.abs(end - start) / 50);
       this.zooming = {
-        start: this.camera.zoom,
-        change,
+        start,
+        end,
         elapsed: 0,
-        duration: 0.5,
+        duration,
       };
     }, { passive: true });
   }
 
   update(dt: number) {
-    // console.log(dt);
     if(this.zooming) {
       this.zooming.elapsed += dt;
       if(this.zooming.elapsed >= this.zooming.duration) {
-        this.setZoom(this.zooming.start + this.zooming.change);
+        this.setZoom(this.zooming.end);
         this.zooming = null;
 
       } else {
-        this.setZoom(this.zooming.start + (easeOutQuart(this.zooming.elapsed / this.zooming.duration) * this.zooming.change));
+        const change = this.zooming.end - this.zooming.start;
+        this.setZoom(this.zooming.start + (ease(this.zooming.elapsed / this.zooming.duration) * change));
       }
     }
   }
@@ -63,7 +73,6 @@ export class Camera {
     const camera = new THREE.OrthographicCamera(-width, width, height, -height, 1, 2000);
     camera.zoom = 75;
     camera.position.set(100, 100, 100);
-    // camera.up.set(0, 0, 1);
     camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
     return camera;
@@ -72,7 +81,21 @@ export class Camera {
   private setZoom(zoom: number) {
     this.camera.zoom = zoom;
     this.camera.updateProjectionMatrix();
-    const dims = (({ left, right, top, bottom }) => ({ left, right, top, bottom}))(this.camera);
-    console.log(dims);
+  }
+
+  private setPerspective(perspective: 'iso' | 'overhead') {
+    if(perspective === 'iso') {
+      this.camera.position.set(100, 100, 100);
+    } else {
+      this.camera.position.set(0, 1000, 0);
+    }
+
+    const target = new THREE.Vector3(0, 0, 0);
+    if(this.camera.parent) {
+      this.camera.parent.getWorldPosition(target);
+      this.camera.lookAt(target);
+    }
+
+    this.perspective = perspective;
   }
 };
