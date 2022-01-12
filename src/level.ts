@@ -46,7 +46,6 @@ export class LevelLoader {
     for(let dz = 0; dz < tiles.length; dz++) {
       for(let dx = 0; dx < tiles[dz].length; dx++) {
         const index = tiles[dz][dx];
-        const x = dx + level.offset[0], y = level.offset[1], z = dz + level.offset[2];
         const tile = this.tileset.tiles[index];
         if(!tile) {
           continue;

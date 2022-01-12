@@ -41,7 +41,6 @@ export class Player {
 
       let newPos = navmesh.move(this.model.position, moveVector);
       if(newPos) {
-        console.log(newPos.toArray());
         this.model.position.copy(newPos);
         
       } else {

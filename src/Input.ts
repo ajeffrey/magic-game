@@ -6,7 +6,6 @@ export const Input = new class {
 
     window.addEventListener('keydown', e => {
       const key = e.key.toLowerCase();
-      console.log(key);
       this.keys[key] = true;
     });
 

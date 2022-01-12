@@ -19,7 +19,6 @@ function isWithinTriangle(tri: THREE.Triangle, point: THREE.Vector2) {
 }
 
 function lerpTriangle(tri: THREE.Triangle, point: THREE.Vector2) {
-  const div = (tri.b.z - tri.c.z) * (tri.a.x - tri.c.x) + (tri.c.x - tri.b.x) * (tri.a.z - tri.c.z);
   const w1 = (tri.b.z - tri.c.z) * (point.x - tri.c.x) + (tri.c.x - tri.b.x) * (point.y - tri.c.z);
   const w2 = (tri.c.z - tri.a.z) * (point.x - tri.c.x) + (tri.a.x - tri.c.x) * (point.y  - tri.c.z);
   const w3 = 1 - w1 - w2;
@@ -31,8 +30,6 @@ const tri = new THREE.Triangle(
   new THREE.Vector3(1, 1, 0),
   new THREE.Vector3(0, 0, 1),
 );
-console.log('lerptest', lerpTriangle(tri, new THREE.Vector2(0, 0.5)));
-console.log('lerptest', lerpTriangle(tri, new THREE.Vector2(0.25, 0.5)));
 
 export class NavMesh {
   private tiles: Dictionary<THREE.Triangle[]>;
