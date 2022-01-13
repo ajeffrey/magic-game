@@ -1,29 +1,18 @@
 import * as THREE from 'three';
+import { Tween } from './Tween';
 
 function clamp(val: number, min: number, max: number) {
   return Math.min(max, Math.max(val, min));
 };
 
-// https://easings.net/#easeOutExpo
-function ease(x: number): number {
-  return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
-};
-
-interface IZoom {
-  start: number;
-  end: number;
-  elapsed: number;
-  duration: number;
-}
-
 export class Camera {
   readonly camera: THREE.OrthographicCamera;
-  private zooming: IZoom | null;
+  private zooming: Tween;
   private perspective: 'iso' | 'overhead' = 'iso';
 
   constructor() {
-    this.zooming = null;
     this.camera = this.createCamera();
+    this.zooming = new Tween(this.camera.zoom, val => this.setZoom(val));
     this.setPerspective('iso');
 
     window.addEventListener('keypress', e => {
@@ -41,30 +30,14 @@ export class Camera {
 
     window.addEventListener('wheel', (e) => {
       const start = this.camera.zoom;
-      const startFrom = this.camera.zoom;
-      const end = clamp(startFrom + (-e.deltaY / 10), 25, 100);
+      const end = clamp(start + (-e.deltaY / 10), 25, 100);
       const duration = Math.max(0.25, Math.abs(end - start) / 50);
-      this.zooming = {
-        start,
-        end,
-        elapsed: 0,
-        duration,
-      };
+      this.zooming.tween(end, duration);
     }, { passive: true });
   }
 
   update(dt: number) {
-    if(this.zooming) {
-      this.zooming.elapsed += dt;
-      if(this.zooming.elapsed >= this.zooming.duration) {
-        this.setZoom(this.zooming.end);
-        this.zooming = null;
-
-      } else {
-        const change = this.zooming.end - this.zooming.start;
-        this.setZoom(this.zooming.start + (ease(this.zooming.elapsed / this.zooming.duration) * change));
-      }
-    }
+    this.zooming.update(dt);
   }
 
   private createCamera() {

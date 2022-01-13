@@ -22,6 +22,8 @@ export class ModelCollection {
         if(obj instanceof THREE.Mesh) {
           obj.castShadow = true;
           obj.receiveShadow = true;
+          obj.material.format = THREE.RGBAFormat;
+          obj.material = obj.material.clone();
         }
       });
 

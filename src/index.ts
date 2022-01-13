@@ -37,6 +37,18 @@ modelLoader.onReady(models => {
 
   const player = new Player(models.get('player'));
   scene.add(player.model);
+
+  let blurred = false;
+
+  window.addEventListener('blur', () => {
+    blurred = true;
+    console.log('lost window focus...');
+  });
+
+  window.addEventListener('focus', () => {
+    blurred = false;
+    console.log('regained window focus...');
+  })
   
   let prevTime = performance.now();
   let dt: number;
@@ -45,13 +57,16 @@ modelLoader.onReady(models => {
     dt = (t - prevTime) / 1000;
     prevTime = t;
     
-    player.update(dt, navmesh);
-    for(const level of levels) {
-      level.update(dt, player);
+    if(!blurred) {
+      player.update(dt, navmesh);
+      for(const level of levels) {
+        level.update(dt, player);
+      }
+      renderer.render(scene, player.camera.camera);
     }
-    renderer.render(scene, player.camera.camera);
+    
     stats.end();
-    requestAnimationFrame(step);
+      requestAnimationFrame(step);
   }
   
   requestAnimationFrame(step);
