@@ -60,7 +60,6 @@ export class Player {
 
   private setModel(model: THREE.Object3D) {
     model.position.set(3, 0, 3);
-    model.scale.setScalar(0.3);
     model.castShadow = true;
     this.model = model;
   }
