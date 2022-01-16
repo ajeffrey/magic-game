@@ -6,6 +6,7 @@ import { ITileMesh, NavMesh } from './NavMesh';
 import { Player } from './Player';
 import { Level, LevelLoader } from './Level';
 import { levelData, tileset } from './map';
+import { Rat } from './Rat';
 
 const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -15,6 +16,7 @@ const modelLoader = new ModelLoader();
 const modelNames = new Set(Object.values(tileset.tiles).map(o => o.m));
 
 modelLoader.loadGLTF('player', 'models/player.glb');
+modelLoader.loadGLTF('rat', 'models/rat.glb');
 
 for(const modelName of modelNames) {
   modelLoader.loadGLTF(modelName, `models/${modelName}.glb`);
@@ -37,6 +39,9 @@ modelLoader.onReady(models => {
 
   const player = new Player(models.get('player'));
   scene.add(player.model);
+
+  const rat = new Rat(models.get('rat'));
+  scene.add(rat.model);
 
   let blurred = false;
 
