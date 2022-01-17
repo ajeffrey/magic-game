@@ -62,10 +62,6 @@ export class NavMesh {
 
     let y: number | null;
     if(toTile) {
-      if(toTile.coords.y !== startTile.coords.y) {
-        console.log(toTile.coords.toArray());
-        console.log(connectsTo(startTile, toTile));
-      }
       y = toTile.getY(dest);
       if(y !== null) {
         const end = new THREE.Vector3(dest.x, y, dest.y);
