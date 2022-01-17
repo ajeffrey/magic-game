@@ -1,8 +1,7 @@
 import Stats = require('stats.js');
-import * as THREE from 'three';
 import { createRenderer, createScene } from './init';
 import { ModelLoader } from './ModelLoader';
-import { ITileMesh, NavMesh } from './NavMesh';
+import { NavMesh } from './navigation/NavMesh';
 import { Player } from './Player';
 import { Level, LevelLoader } from './Level';
 import { levelData, tileset } from './map';

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { ModelCollection } from './ModelLoader';
-import { ITileMesh, NavMesh } from './NavMesh';
+import { NavMesh } from './navigation/NavMesh';
+import { NavTile } from './navigation/NavTile';
 import { Player } from './Player';
 import { Tween } from './Tween';
 import { Vec3, Dictionary } from './types';
@@ -42,8 +43,6 @@ export class LevelLoader {
     const levelObj = new THREE.Object3D();
     levelObj.position.set(...level.offset);
     const tiles = level.map.split('\n').map(row => row.split(''));
-    const navTiles: ITileMesh[] = [];
-
     for(let dz = 0; dz < tiles.length; dz++) {
       for(let dx = 0; dx < tiles[dz].length; dx++) {
         const index = tiles[dz][dx];
@@ -70,13 +69,23 @@ export class LevelLoader {
           });
         }
 
-        navTiles.push({ coords: [dx, dz], vertices, triangles });
+        const tileCoord = new THREE.Vector3(dx + level.offset[0], level.offset[1], dz + level.offset[2]);
+        const tileTriangles: THREE.Triangle[] = [];
+        for(const [a, b, c] of triangles) {
+          tileTriangles.push(new THREE.Triangle(
+            new THREE.Vector3(...vertices[a]).add(tileCoord),
+            new THREE.Vector3(...vertices[b]).add(tileCoord),
+            new THREE.Vector3(...vertices[c]).add(tileCoord),
+          ));
+        }
+
+        const navTile = new NavTile(tileCoord, tileTriangles);
+        this.navmesh.addTile(navTile);
         model.position.set(dx, 0, dz);
         levelObj.add(model);
       }
     }
 
-    this.navmesh.addLevel(level.offset, navTiles);
     return new Level(levelObj);
   }
 }
