@@ -1,5 +1,4 @@
-import { ITileset, ILevel } from "./Level";
-import { Dictionary, Vec2, Vec3 } from "./types";
+import { ITileset, ILevel } from "./loaders/LevelLoader";
 
 const tileset: ITileset = {
   tiles: {

@@ -2,8 +2,9 @@ import * as THREE from 'three';
 import { Camera } from './Camera';
 import { Input } from './Input';
 import { NavMesh } from './navigation/NavMesh';
+import { IEntity, World } from './World';
 
-export class Player {
+export class Player implements IEntity {
   public model: THREE.Object3D;
   public camera: Camera;
   private speed = 2;
@@ -14,7 +15,7 @@ export class Player {
     this.model.add(this.camera.camera);
   }
 
-  update(dt: number, navmesh: NavMesh) {
+  update(dt: number, world: World) {
     this.camera.update(dt);
     let moveVector = Input.moveVector();
 
@@ -23,7 +24,8 @@ export class Player {
       speed *= 2;
     }
 
-    if(moveVector.length() > 0) {
+    const navmesh = world.getEntity(NavMesh);
+    if(navmesh && moveVector.length() > 0) {
       moveVector.normalize();
       moveVector.multiplyScalar(speed);
 

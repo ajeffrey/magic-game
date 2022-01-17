@@ -1,11 +1,12 @@
 import Stats = require('stats.js');
 import { createRenderer, createScene } from './init';
-import { ModelLoader } from './ModelLoader';
+import { ModelLoader } from './loaders/ModelLoader';
+import { LevelLoader } from './loaders/LevelLoader';
 import { NavMesh } from './navigation/NavMesh';
 import { Player } from './Player';
-import { Level, LevelLoader } from './Level';
 import { levelData, tileset } from './map';
 import { Rat } from './Rat';
+import { World } from './World';
 
 const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -22,24 +23,27 @@ for(const modelName of modelNames) {
 }
 
 modelLoader.onReady(models => {
+  const world = new World();
   const renderer = createRenderer();
   const scene = createScene();
   const navmesh = new NavMesh();
+  world.addEntity(navmesh);
   const levelLoader = new LevelLoader(tileset, models, navmesh);
 
-  const levels: Level[] = [];
   for(const levelObj of levelData) {
     const level = levelLoader.load(levelObj);
-    levels.push(level);
+    world.addEntity(level);
     scene.add(level.obj);
   }
   
   // scene.add(navmesh.debug());
 
   const player = new Player(models.get('player'));
+  world.addEntity(player);
   scene.add(player.model);
 
   const rat = new Rat(models.get('rat'));
+  world.addEntity(rat);
   scene.add(rat.model);
 
   let blurred = false;
@@ -62,10 +66,7 @@ modelLoader.onReady(models => {
     prevTime = t;
     
     if(!blurred) {
-      player.update(dt, navmesh);
-      for(const level of levels) {
-        level.update(dt, player);
-      }
+      world.update(dt);
       renderer.render(scene, player.camera.camera);
     }
     
