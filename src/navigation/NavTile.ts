@@ -10,7 +10,7 @@ export class NavTile {
   readonly triangles: THREE.Triangle[];
   readonly vertices: THREE.Vector3[];
 
-  readonly neighbours: INeighbour[];
+  private neighbours: INeighbour[];
 
   constructor(coords: THREE.Vector3, triangles: THREE.Triangle[]) {
     this.coords = coords;
