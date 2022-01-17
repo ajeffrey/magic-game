@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Camera } from './Camera';
 import { Input } from './Input';
-import { NavMesh } from './NavMesh';
+import { NavMesh } from './navigation/NavMesh';
 
 export class Player {
   public model: THREE.Object3D;
@@ -16,19 +16,7 @@ export class Player {
 
   update(dt: number, navmesh: NavMesh) {
     this.camera.update(dt);
-    let moveVector = new THREE.Vector2();
-    if(Input.keyDown('w')) {
-      moveVector.y -= 1;
-    }
-    if(Input.keyDown('s')) {
-      moveVector.y += 1;
-    }
-    if(Input.keyDown('a')) {
-      moveVector.x -= 1;
-    }
-    if(Input.keyDown('d')) {
-      moveVector.x += 1;
-    }
+    let moveVector = Input.moveVector();
 
     let speed = dt * this.speed;
     if(Input.keyDown('shift')) {
@@ -51,11 +39,16 @@ export class Player {
           newPos = navmesh.move(this.model.position, alt);
           if(newPos) {
             this.model.position.copy(newPos);
+            this.emitSound();
             break;
           }
         }
       }
     }
+  }
+
+  private emitSound() {
+    
   }
 
   private setModel(model: THREE.Object3D) {

@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 export const Input = new class {
   private keys: {[key: string]: boolean};
 
@@ -17,5 +19,23 @@ export const Input = new class {
 
   keyDown(key: string) {
     return this.keys[key] || false;
+  }
+
+  moveVector() {
+    const moveVector = new THREE.Vector2();
+    if(this.keyDown('w')) {
+      moveVector.y -= 1;
+    }
+    if(this.keyDown('s')) {
+      moveVector.y += 1;
+    }
+    if(this.keyDown('a')) {
+      moveVector.x -= 1;
+    }
+    if(this.keyDown('d')) {
+      moveVector.x += 1;
+    }
+
+    return moveVector;
   }
 };
