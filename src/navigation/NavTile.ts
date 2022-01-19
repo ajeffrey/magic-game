@@ -9,8 +9,7 @@ export class NavTile {
   readonly coords: THREE.Vector3;
   readonly triangles: THREE.Triangle[];
   readonly vertices: THREE.Vector3[];
-
-  private neighbours: INeighbour[];
+  readonly neighbours: INeighbour[];
 
   constructor(coords: THREE.Vector3, triangles: THREE.Triangle[]) {
     this.coords = coords;

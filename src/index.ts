@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import Stats = require('stats.js');
 import { createRenderer, createScene } from './init';
 import { ModelLoader } from './loaders/ModelLoader';
@@ -42,9 +43,13 @@ modelLoader.onReady(models => {
   world.addEntity(player);
   scene.add(player.model);
 
-  const rat = new Rat(models.get('rat'));
+  const rat = new Rat(models.get('rat'), new THREE.Vector3(3, -1, 3));
   world.addEntity(rat);
   scene.add(rat.model);
+
+  const rat2 = new Rat(models.get('rat'), new THREE.Vector3(1, -1, 3));
+  world.addEntity(rat2);
+  scene.add(rat2.model);
 
   let blurred = false;
 

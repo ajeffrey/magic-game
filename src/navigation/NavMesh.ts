@@ -80,12 +80,12 @@ export class NavMesh {
     return navmesh;
   }
 
-  private pointToIndex(point: THREE.Vector3) {
-    return point.toArray().map((n, i) => i == 1 ? Math.floor(n) : Math.round(n)).join(',');
-  }
-
-  private getTile(point: THREE.Vector3) {
+  getTile(point: THREE.Vector3) {
     const id = this.pointToIndex(point);
     return this.tiles[id] || null;
+  }
+
+  private pointToIndex(point: THREE.Vector3) {
+    return point.toArray().map((n, i) => i == 1 ? Math.floor(n) : Math.round(n)).join(',');
   }
 }
