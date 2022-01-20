@@ -66,13 +66,25 @@ const house: ILevel = {
   map: '┌┬┬┬┬┬┬┐\n' + 
        '├......┤\n' + 
        '├ .....┤\n' + 
-       '├......┤\n' + 
+       '├.......\n' + 
        '├......┤\n' + 
        '├......┤\n' + 
        '├......┤\n' + 
        '└┴┴┴┴┴┴┘\n',
 };
 
-const levelData = [basement, house];
+const outside: ILevel = {
+  offset: [8, 0, 0],
+  map: '........\n' + 
+       '........\n' + 
+       '........\n' + 
+       '........\n' + 
+       '........\n' + 
+       '........\n' + 
+       '........\n' + 
+       '........\n',
+};
+
+const levelData = [basement, house, outside];
 
 export { levelData, tileset };
