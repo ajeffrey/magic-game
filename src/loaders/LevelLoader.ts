@@ -78,7 +78,7 @@ export class LevelLoader {
           ));
         }
 
-        const navTile = new NavTile(tileCoord, tileTriangles);
+        const navTile = new NavTile(tileCoord, tileTriangles, [tile.m]);
         this.navmesh.addTile(navTile);
         model.position.set(dx, 0, dz);
         levelObj.add(model);

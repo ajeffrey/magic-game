@@ -55,13 +55,24 @@ class RatExploringState {
           const steps = [];
           let current = tile;
           for(let i = 0; i < 3; i++) {
-            const candidates = current.neighbours.filter(n => !steps.includes(n.coords));
+            const candidates = current.neighbours.filter(n => {
+              if(steps.includes(n.tile)) {
+                return false;
+              }
+
+              if(n.tile.tags.includes('stairs')) {
+                return false;
+              }
+
+              return true;
+            });
+            
             if(candidates.length === 0) {
               succeeded = false;
               break;
             }
 
-            current = navmesh.getTile(candidates[Math.floor(Math.random() * candidates.length)].coords);
+            current = candidates[Math.floor(Math.random() * candidates.length)].tile;
             steps.push(current);
           }
 

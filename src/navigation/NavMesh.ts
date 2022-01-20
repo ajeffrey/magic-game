@@ -35,8 +35,8 @@ export class NavMesh {
             const ncoords = new THREE.Vector3(x, y, z).add(tile.coords);
             const neighbour = this.getTile(ncoords);
             if(neighbour && connectsTo(tile, neighbour)) {
-              tile.addNeighbour(new THREE.Vector2(x, z), ncoords);
-              neighbour.addNeighbour(new THREE.Vector2(-x, -z), tile.coords);
+              tile.addNeighbour(new THREE.Vector2(x, z), neighbour);
+              neighbour.addNeighbour(new THREE.Vector2(-x, -z), tile);
             }
           }
         }
@@ -52,9 +52,9 @@ export class NavMesh {
 
     // stayed on same tile
     if(changeX || changeY) {
-      const ncoords = startTile.neighbour(new THREE.Vector2(changeX, changeY));
-      if(ncoords) {
-        toTile = this.getTile(ncoords);
+      const neighbour = startTile.neighbour(new THREE.Vector2(changeX, changeY));
+      if(neighbour) {
+        toTile = neighbour;
       }
     } else {
       toTile = startTile;

@@ -2,26 +2,28 @@ import * as THREE from 'three';
 
 interface INeighbour {
   direction: THREE.Vector2;
-  coords: THREE.Vector3;
+  tile: NavTile;
 }
 
 export class NavTile {
   readonly coords: THREE.Vector3;
   readonly triangles: THREE.Triangle[];
+  readonly tags: string[];
   readonly vertices: THREE.Vector3[];
   readonly neighbours: INeighbour[];
 
-  constructor(coords: THREE.Vector3, triangles: THREE.Triangle[]) {
+  constructor(coords: THREE.Vector3, triangles: THREE.Triangle[], tags: string[]) {
+    this.tags = tags;
     this.coords = coords;
     this.triangles = triangles;
     this.vertices = this.uniqueVertices(triangles);
     this.neighbours = [];
   }
 
-  neighbour(direction: THREE.Vector2): THREE.Vector3 | null {
+  neighbour(direction: THREE.Vector2): NavTile | null {
     for(const n of this.neighbours) {
       if(n.direction.equals(direction)) {
-        return n.coords;
+        return n.tile;
       }
     }
 
@@ -45,8 +47,8 @@ export class NavTile {
     return null;
   }
 
-  addNeighbour(direction: THREE.Vector2, coords: THREE.Vector3) {
-    this.neighbours.push({ direction, coords });
+  addNeighbour(direction: THREE.Vector2, tile: NavTile) {
+    this.neighbours.push({ direction, tile });
   }
 
   private uniqueVertices(triangles: THREE.Triangle[]) {
