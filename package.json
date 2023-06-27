@@ -3,7 +3,7 @@
   "private": true,
   "start": "nodemon src/index.ts",
   "scripts": {
-    "start:dev": "webpack-dev-server"
+    "dev": "webpack-dev-server"
   },
   "dependencies": {
     "shortid": "^2.2.16",
