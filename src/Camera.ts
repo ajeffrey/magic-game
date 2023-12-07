@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { Tween } from './Tween';
+import { Touch } from './Touch';
 
 function clamp(val: number, min: number, max: number) {
   return Math.min(max, Math.max(val, min));
@@ -34,6 +35,10 @@ export class Camera {
       const duration = Math.max(0.25, Math.abs(end - start) / 50);
       this.zooming.tween(end, duration);
     }, { passive: true });
+
+    Touch.addEventListener('pinchmove', (e: CustomEvent) => {
+      console.log(e.detail);
+    });
   }
 
   update(dt: number) {

@@ -4,7 +4,7 @@ export const Input = new class {
   private keys: {[key: string]: boolean};
 
   constructor() {
-    this.keys = {};
+    this.keys = {}
 
     window.addEventListener('keydown', e => {
       const key = e.key.toLowerCase();
