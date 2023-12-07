@@ -8,6 +8,8 @@ import { Player } from "./Player";
 import { levelData, tileset } from "./map";
 import { Rat } from "./Rat";
 import { World } from "./World";
+import { Touch } from "./Touch";
+import { Camera } from "./Camera";
 
 const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -37,9 +39,45 @@ modelLoader.onReady((models) => {
     scene.add(level.obj);
   }
 
-  // scene.add(navmesh.debug());
+  const dbg = navmesh.debug();
+  const rc = new THREE.Raycaster();
+  const raypt = new THREE.Vector2();
+  window.addEventListener("click", (e) => {
+    raypt.x = (e.clientX / window.innerWidth) * 2 - 1;
+    raypt.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    rc.setFromCamera(raypt, camera.camera);
+    const intersects = rc.intersectObjects([dbg]);
+    console.log(intersects);
+  });
 
-  const player = new Player(models.get("player"));
+  // scene.add(navmesh.debug());
+  const camera = new Camera();
+
+  window.addEventListener("keypress", (e) => {
+    if (e.key === " ") {
+      camera.setPerspective(camera.perspective === "iso" ? "overhead" : "iso");
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    camera.setWindowSize(window.innerWidth, window.innerHeight);
+  });
+
+  window.addEventListener(
+    "wheel",
+    (e) => {
+      camera.addZoom(-e.deltaY / 10);
+    },
+    {
+      passive: true,
+    }
+  );
+
+  Touch.addEventListener("pinchmove", (e: CustomEvent) => {
+    camera.addZoom(e.detail as number);
+  });
+
+  const player = new Player(models.get("player"), camera);
   world.addEntity(player);
   scene.add(player.model);
 
