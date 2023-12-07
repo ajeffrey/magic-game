@@ -37,7 +37,10 @@ export class Camera {
     }, { passive: true });
 
     Touch.addEventListener('pinchmove', (e: CustomEvent) => {
-      console.log(e.detail);
+      const start = this.camera.zoom;
+      const end = clamp(start + ((e.detail as number)), .5, 100);
+      const duration = Math.max(0.25, Math.abs(end - start) / 50);
+      this.zooming.tween(end, duration);
     });
   }
 
