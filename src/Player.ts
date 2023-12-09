@@ -3,20 +3,34 @@ import { Camera } from "./Camera";
 import { Input } from "./Input";
 import { NavMesh } from "./navigation/NavMesh";
 import { IEntity, World } from "./World";
+import { FollowingPathState } from "./states/FollowingPathState";
+import { NeutralState } from "./states/NeutralState";
+import { NavTile } from "./navigation/NavTile";
 
 export class Player implements IEntity {
   public model: THREE.Object3D;
   public camera: Camera;
-  private speed = 2;
+  public state: FollowingPathState | NeutralState;
+  public speed = 2;
 
   constructor(model: THREE.Object3D, camera: Camera) {
     this.setModel(model);
     this.camera = camera;
     this.model.add(this.camera.camera);
+    this.state = new NeutralState();
+  }
+
+  setPath(path: NavTile[]) {
+    this.state = new FollowingPathState(this, path);
   }
 
   update(dt: number, world: World) {
     this.camera.update(dt);
+    this.state.update(dt);
+    if (this.state.isFinished() && this.state instanceof FollowingPathState) {
+      this.state = new NeutralState();
+    }
+
     let moveVector = Input.moveVector();
 
     let speed = dt * this.speed;

@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { Dictionary } from "../types";
 import { NavTile } from "./NavTile";
+import { shortestPath } from "./shortestPath";
 
 const NEIGHBOUR_RANGE = [0, -1, 1];
 
@@ -43,6 +44,16 @@ export class NavMesh {
     }
   }
 
+  route(start: THREE.Vector3, end: THREE.Vector3) {
+    const startTile = this.tiles[this.pointToIndex(start)];
+    const endTile = this.tiles[this.pointToIndex(end)];
+    if (startTile === endTile) {
+      return [];
+    }
+
+    return shortestPath(startTile, endTile);
+  }
+
   move(start: THREE.Vector3, change: THREE.Vector2): THREE.Vector3 | null {
     const dest = new THREE.Vector2(start.x + change.x, start.z + change.y);
     const changeX = Math.round(dest.x) - Math.round(start.x);
@@ -64,7 +75,7 @@ export class NavMesh {
 
     let y: number | null;
     if (toTile) {
-      y = toTile.getY(dest);
+      y = toTile.getY(dest.x, dest.y);
       if (y !== null) {
         const end = new THREE.Vector3(dest.x, y, dest.y);
         return end;
@@ -73,32 +84,20 @@ export class NavMesh {
     return null;
   }
 
-  debug() {
-    const navmeshGeo = new THREE.BufferGeometry();
-    const vertices = Object.values(this.tiles)
-      .flatMap((tile) => tile.triangles)
-      .flatMap((tri) => [tri.a.toArray(), tri.b.toArray(), tri.c.toArray()])
-      .flatMap(([x, y, z]) => [x, y + 0.1, z]);
-    navmeshGeo.setAttribute(
-      "position",
-      new THREE.BufferAttribute(new Float32Array(vertices), 3)
-    );
-    const navmeshMat = new THREE.MeshBasicMaterial({
-      color: 0x0000ff,
-      opacity: 0.75,
-      transparent: true,
-    });
-    const navmesh = new THREE.Mesh(navmeshGeo, navmeshMat);
-    return navmesh;
-  }
-
   triangles() {
     return Object.values(this.tiles).flatMap((t) => {
       const geo = new THREE.BufferGeometry();
       const verts = t.triangles
         .flatMap((tri) => [tri.a.toArray(), tri.b.toArray(), tri.c.toArray()])
         .flatMap(([x, y, z]) => [x, y, z]);
-      geo.setAttribute('')
+      geo.setAttribute(
+        "position",
+        new THREE.BufferAttribute(new Float32Array(verts), 3)
+      );
+      const mat = new THREE.MeshBasicMaterial();
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.userData.tile = t;
+      return mesh;
     });
   }
 

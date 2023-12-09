@@ -10,6 +10,7 @@ import { Rat } from "./Rat";
 import { World } from "./World";
 import { Touch } from "./Touch";
 import { Camera } from "./Camera";
+import { NavTile } from "./navigation/NavTile";
 
 const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -39,15 +40,20 @@ modelLoader.onReady((models) => {
     scene.add(level.obj);
   }
 
-  const dbg = navmesh.debug();
   const rc = new THREE.Raycaster();
   const raypt = new THREE.Vector2();
   window.addEventListener("click", (e) => {
     raypt.x = (e.clientX / window.innerWidth) * 2 - 1;
     raypt.y = -(e.clientY / window.innerHeight) * 2 + 1;
     rc.setFromCamera(raypt, camera.camera);
-    const intersects = rc.intersectObjects([dbg]);
-    console.log(intersects);
+    const navmeshTriangles = navmesh.triangles();
+    const intersects = rc.intersectObjects(navmeshTriangles);
+    if (intersects.length > 0) {
+      const destination = intersects[0].object.userData.tile as NavTile;
+      const route = navmesh.route(player.model.position, destination.coords);
+      console.log("route", route);
+      player.setPath(route);
+    }
   });
 
   // scene.add(navmesh.debug());
