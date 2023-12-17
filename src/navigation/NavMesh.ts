@@ -5,19 +5,19 @@ import { shortestPath } from "./shortestPath";
 
 const NEIGHBOUR_RANGE = [0, -1, 1];
 
-function connectsTo(a: NavTile, b: NavTile): boolean {
-  let ints = 0;
+function connectsTo(a: NavTile, b: NavTile) {
+  const verts = [];
   for (const av of a.vertices) {
     const aid = av.toArray().join(",");
     for (const bv of b.vertices) {
       const bid = bv.toArray().join(",");
       if (aid === bid) {
-        ints += 1;
+        verts.push(av);
       }
     }
   }
 
-  return ints >= 2;
+  return verts.length >= 2 ? verts : null;
 }
 
 export class NavMesh {
@@ -35,7 +35,8 @@ export class NavMesh {
           if (x === 0 && z === 0) continue;
           const ncoords = new THREE.Vector3(x, y, z).add(tile.coords);
           const neighbour = this.getTile(ncoords);
-          if (neighbour && connectsTo(tile, neighbour)) {
+          const connectingVerts = neighbour && connectsTo(tile, neighbour);
+          if (neighbour && connectingVerts) {
             tile.addNeighbour(new THREE.Vector2(x, z), neighbour);
             neighbour.addNeighbour(new THREE.Vector2(-x, -z), tile);
           }
@@ -55,19 +56,24 @@ export class NavMesh {
   }
 
   move(start: THREE.Vector3, change: THREE.Vector2): THREE.Vector3 | null {
+    const startTile = this.getTile(start);
+    if (!startTile) {
+      console.log("startTile not found", { start });
+    }
     const dest = new THREE.Vector2(start.x + change.x, start.z + change.y);
     const changeX = Math.round(dest.x) - Math.round(start.x);
     const changeY = Math.round(dest.y) - Math.round(start.z);
-    const startTile = this.getTile(start);
     let toTile: NavTile | null = null;
 
-    // stayed on same tile
+    // changed tile
     if (changeX || changeY) {
       const neighbour = startTile.neighbour(
         new THREE.Vector2(changeX, changeY)
       );
       if (neighbour) {
         toTile = neighbour;
+      } else {
+        console.log("neighbour not found", { startTile, changeX, changeY });
       }
     } else {
       toTile = startTile;
@@ -76,12 +82,31 @@ export class NavMesh {
     let y: number | null;
     if (toTile) {
       y = toTile.getY(dest.x, dest.y);
-      if (y !== null) {
+      if (y === null) {
+        console.log("y null", { toTile, x: dest.x, y: dest.y });
+      } else {
         const end = new THREE.Vector3(dest.x, y, dest.y);
         return end;
       }
     }
+
     return null;
+  }
+
+  geometry() {
+    return Object.values(this.tiles).flatMap((t) => {
+      const geo = new THREE.BufferGeometry();
+      const verts = t.triangles
+        .flatMap((tri) => [tri.a.toArray(), tri.b.toArray(), tri.c.toArray()])
+        .flatMap(([x, y, z]) => [x, y, z]);
+
+      geo.setAttribute(
+        "position",
+        new THREE.BufferAttribute(new Float32Array(verts), 3)
+      );
+
+      return geo;
+    });
   }
 
   triangles() {
@@ -90,13 +115,28 @@ export class NavMesh {
       const verts = t.triangles
         .flatMap((tri) => [tri.a.toArray(), tri.b.toArray(), tri.c.toArray()])
         .flatMap(([x, y, z]) => [x, y, z]);
+
       geo.setAttribute(
         "position",
         new THREE.BufferAttribute(new Float32Array(verts), 3)
       );
-      const mat = new THREE.MeshBasicMaterial();
+
+      const colours = t.triangles.flatMap((_) => {
+        const vertCol = [Math.random(), Math.random(), Math.random()];
+        return [...vertCol, ...vertCol, ...vertCol];
+      });
+      geo.setAttribute(
+        "color",
+        new THREE.BufferAttribute(new Float32Array(colours), 3)
+      );
+
+      const mat = new THREE.MeshBasicMaterial({
+        vertexColors: true,
+        side: THREE.DoubleSide,
+      });
       const mesh = new THREE.Mesh(geo, mat);
       mesh.userData.tile = t;
+
       return mesh;
     });
   }

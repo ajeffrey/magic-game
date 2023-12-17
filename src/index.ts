@@ -1,23 +1,28 @@
 import * as THREE from "three";
 import Stats from "stats.js";
+import * as dat from "dat.gui";
 import { createRenderer, createScene } from "./init";
 import { ModelLoader } from "./loaders/ModelLoader";
 import { LevelLoader } from "./loaders/LevelLoader";
 import { NavMesh } from "./navigation/NavMesh";
-import { Player } from "./Player";
-import { levelData, tileset } from "./map";
-import { Rat } from "./Rat";
-import { World } from "./World";
-import { Touch } from "./Touch";
+import { Player } from "./entities/Player";
+import { levelData, models as levelModels } from "./map";
+import { Rat } from "./entities/Rat";
+import { World } from "./world/World";
+import { Touch } from "./input/Touch";
 import { Camera } from "./Camera";
 import { NavTile } from "./navigation/NavTile";
+import { DebugRenderer } from "./DebugRenderer";
+import Time from "./Time";
 
 const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
 document.body.appendChild(stats.dom);
 
+const gui = new dat.GUI();
+
 const modelLoader = new ModelLoader();
-const modelNames = new Set(Object.values(tileset.tiles).map((o) => o.m));
+const modelNames = new Set(Object.keys(levelModels));
 
 modelLoader.loadGLTF("player", "models/player.glb");
 modelLoader.loadGLTF("rat", "models/rat.glb");
@@ -27,18 +32,30 @@ for (const modelName of modelNames) {
 }
 
 modelLoader.onReady((models) => {
-  const world = new World();
   const renderer = createRenderer();
   const scene = createScene();
   const navmesh = new NavMesh();
-  world.addEntity(navmesh);
-  const levelLoader = new LevelLoader(tileset, models, navmesh);
+  World.addEntity(navmesh);
+  const levelLoader = new LevelLoader(levelModels, models, navmesh);
 
   for (const levelObj of levelData) {
     const level = levelLoader.load(levelObj);
-    world.addEntity(level);
+    World.addEntity(level);
     scene.add(level.obj);
   }
+
+  const navmeshGeo = navmesh.geometry();
+  const dbg = navmesh.triangles();
+  const parent = new THREE.Group();
+  parent.visible = false;
+  const lines = new THREE.Group();
+  lines.add(...navmeshGeo.map((tile) => DebugRenderer.outline(tile)));
+  parent.add(...dbg, lines);
+  parent.position.y += 0.01;
+  lines.position.y += 0.01;
+  scene.add(parent);
+  const navmeshGui = gui.addFolder("NavMesh");
+  navmeshGui.add(parent, "visible").name("polys");
 
   const rc = new THREE.Raycaster();
   const raypt = new THREE.Vector2();
@@ -84,15 +101,15 @@ modelLoader.onReady((models) => {
   });
 
   const player = new Player(models.get("player"), camera);
-  world.addEntity(player);
+  World.addEntity(player);
   scene.add(player.model);
 
   const rat = new Rat(models.get("rat"), new THREE.Vector3(3, -1, 3));
-  world.addEntity(rat);
+  World.addEntity(rat);
   scene.add(rat.model);
 
   const rat2 = new Rat(models.get("rat"), new THREE.Vector3(1, -1, 3));
-  world.addEntity(rat2);
+  World.addEntity(rat2);
   scene.add(rat2.model);
 
   let blurred = false;
@@ -113,9 +130,10 @@ modelLoader.onReady((models) => {
     stats.begin();
     dt = (t - prevTime) / 1000;
     prevTime = t;
+    Time.update(dt);
 
     if (!blurred) {
-      world.update(dt);
+      World.update();
       renderer.render(scene, player.camera.camera);
     }
 

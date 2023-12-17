@@ -1,5 +1,5 @@
-import { IState } from "src/State";
-import { World } from "src/World";
+import { IState } from "src/components/State";
+import { World } from "src/world/World";
 
 export class NeutralState implements IState {
   isFinished() {

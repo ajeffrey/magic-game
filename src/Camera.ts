@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { Tween } from "./Tween";
+import Time from "./Time";
 
 function clamp(val: number, min: number, max: number) {
   return Math.min(max, Math.max(val, min));
@@ -24,8 +25,8 @@ export class Camera {
     });
   }
 
-  update(dt: number) {
-    this.zooming.update(dt);
+  update() {
+    this.zooming.update(Time.deltaTime);
   }
 
   setWindowSize(width: number, height: number) {

@@ -1,90 +1,147 @@
-import { ITileset, ILevel } from "./loaders/LevelLoader";
+import { ILevel, IModels } from "./loaders/LevelLoader";
 
-const tileset: ITileset = {
-  tiles: {
-    '┌': { m: 'corner' },
-    '┬': { m: 'wall', rotate: 90, },
-    '┴': { m: 'wall', rotate: 270, },
-    '┐': { m: 'corner', rotate: 90 },
-    '├': { m: 'wall' },
-    '┤': { m: 'wall', rotate: 180 },
-    '.': { m: 'floor' },
-    '└': { m: 'corner', rotate: 270 },
-    'L': { m: 'corner-outside', rotate: 270 },
-    '┘': { m: 'corner', rotate: 180 },
-    '▲': { m: 'stairs', },
+const models: IModels = {
+  corner: {
+    navigable: {
+      polys: [
+        [
+          [0.5, 0, -0.6],
+          [0.5, 0, -0.4],
+          [-0.4, 0, -0.4],
+          [-0.4, 0, 0.5],
+          [-0.6, 0, 0.5],
+          [-0.6, 0, -0.6],
+        ],
+      ],
+    },
   },
-  models: {
-    corner: {
-      navigable: {
-        v: [[0.2, 0, 0.5], [0.5, 0, 0.5], [0.5, 0, 0.2], [0.2, 0, 0.2], [-0.5, 0, -0.5], [0.5, 0, -0.5], [0.5, 0, -0.2], [-0.2, 0, -0.2], [-0.2, 0, 0.5], [-0.5, 0, 0.5]],
-        t: [[0, 1, 2], [0, 2, 3], [4, 5, 6], [4, 6, 7], [4, 7, 8], [4, 8, 9]]
-      }
+  wall: {
+    navigable: {
+      polys: [
+        [
+          [-0.6, 0, -0.5],
+          [-0.4, 0, -0.5],
+          [-0.4, 0, 0.5],
+          [-0.6, 0, 0.5],
+        ],
+      ],
     },
-    'corner-outside': {
-      navigable: {
-        v: [[0.2, 0, 0.5], [0.5, 0, 0.5], [0.5, 0, 0.2], [0.2, 0, 0.2], [-0.5, 0, -0.5], [0.5, 0, -0.5], [0.5, 0, -0.2], [-0.2, 0, -0.2], [-0.2, 0, 0.5], [-0.5, 0, 0.5]],
-        t: [[0, 1, 2], [0, 2, 3], [4, 5, 6], [4, 6, 7], [4, 7, 8], [4, 8, 9]]
-      }
-    },
-    wall: {
-      navigable: {
-        v: [[0.2, 0, 0.5], [0.5, 0, 0.5], [0.5, 0, -0.5], [0.2, 0, -0.5], [-0.5, 0, 0.5], [-0.2, 0, 0.5], [-0.2, 0, -0.5], [-0.5, 0, -0.5]],
-        t: [[0, 1, 2], [0, 2, 3], [4, 5, 6], [4, 6,7]]
-      }
-    },
-    floor: {
-      navigable: {
-        v: [[-0.5, 0, 0.5], [0.5, 0, 0.5], [0.5, 0, -0.5], [-0.5, 0, -0.5]],
-        t: [[0, 1, 2], [0, 2, 3]]
-      }
-    },
-    stairs: {
-      navigable: {
-        v: [[-0.5, 0, 0.5], [0.5, 0, 0.5], [0.5, 1, -0.5], [-0.5, 1, -0.5]],
-        t: [[0, 1, 2], [0, 2, 3]]
-      }
-    }
   },
-}
-
+  floor: {
+    navigable: {
+      polys: [
+        [
+          [-0.5, 0, 0.5],
+          [0.5, 0, 0.5],
+          [0.5, 0, -0.5],
+          [-0.5, 0, -0.5],
+        ],
+      ],
+    },
+  },
+  "basement-floor": {
+    navigable: {
+      polys: [
+        [
+          [-0.5, 0, 0.5],
+          [0.5, 0, 0.5],
+          [0.5, 0, -0.5],
+          [-0.5, 0, -0.5],
+        ],
+      ],
+    },
+  },
+  grass: {
+    navigable: {
+      polys: [
+        [
+          [-0.5, 0, 0.5],
+          [0.5, 0, 0.5],
+          [0.5, 0, -0.5],
+          [-0.5, 0, -0.5],
+        ],
+      ],
+    },
+  },
+  stairs: {
+    navigable: {
+      polys: [
+        [
+          [-0.5, 0, 0.5],
+          [0.5, 0, 0.5],
+          [0.5, 1, -0.5],
+          [-0.5, 1, -0.5],
+        ],
+      ],
+    },
+  },
+};
 
 const basement: ILevel = {
   offset: [0, -1, 0],
-  map: '┌┬┬┬┬┬┬┐\n' + 
-       '├......┤\n' + 
-       '├▲.....┤\n' + 
-       '├......┤\n' + 
-       '├......┤\n' + 
-       '├......┤\n' + 
-       '├......┤\n' + 
-       '└┴┴┴┴┴┴┘\n',
+  tiles: {
+    "┌": { m: "basement-floor", attach: [{ m: "corner" }] },
+    "┬": { m: "basement-floor", attach: [{ m: "wall", rotate: 90 }] },
+    "┴": { m: "basement-floor", attach: [{ m: "wall", rotate: 270 }] },
+    "┐": { m: "basement-floor", attach: [{ m: "corner", rotate: 90 }] },
+    "├": { m: "basement-floor", attach: [{ m: "wall" }] },
+    "┤": { m: "basement-floor", attach: [{ m: "wall", rotate: 180 }] },
+    ".": { m: "basement-floor" },
+    "└": { m: "basement-floor", attach: [{ m: "corner", rotate: 270 }] },
+    "┘": { m: "basement-floor", attach: [{ m: "corner", rotate: 180 }] },
+    "▲": { m: "stairs" },
+  },
+  map:
+    "┌┬┬┬┬┬┬┐\n" +
+    "├......┤\n" +
+    "├▲.....┤\n" +
+    "├......┤\n" +
+    "├......┤\n" +
+    "├......┤\n" +
+    "├......┤\n" +
+    "└┴┴┴┴┴┴┘\n",
 };
 
 const house: ILevel = {
   offset: [0, 0, 0],
-  map: '┌┬┬┬┬┬┬┐\n' + 
-       '├......┤\n' + 
-       '├ .....┤\n' + 
-       '├.......\n' + 
-       '├......┤\n' + 
-       '├......┤\n' + 
-       '├......┤\n' + 
-       '└┴┴┴┴┴┴┘\n',
+  tiles: {
+    "┌": { m: "floor", attach: [{ m: "corner" }] },
+    "┬": { m: "floor", attach: [{ m: "wall", rotate: 90 }] },
+    "┴": { m: "floor", attach: [{ m: "wall", rotate: 270 }] },
+    "┐": { m: "floor", attach: [{ m: "corner", rotate: 90 }] },
+    "├": { m: "floor", attach: [{ m: "wall" }] },
+    "┤": { m: "floor", attach: [{ m: "wall", rotate: 180 }] },
+    ".": { m: "floor" },
+    "└": { m: "floor", attach: [{ m: "corner", rotate: 270 }] },
+    "┘": { m: "floor", attach: [{ m: "corner", rotate: 180 }] },
+  },
+  map:
+    "┌┬┬┬┬┬┬┐\n" +
+    "├......┤\n" +
+    "├ .....┤\n" +
+    "├.......\n" +
+    "├......┤\n" +
+    "├......┤\n" +
+    "├......┤\n" +
+    "└┴┴┴┴┴┴┘\n",
 };
 
 const outside: ILevel = {
   offset: [8, 0, 0],
-  map: '........\n' + 
-       '........\n' + 
-       '........\n' + 
-       '........\n' + 
-       '........\n' + 
-       '........\n' + 
-       '........\n' + 
-       '........\n',
+  tiles: {
+    ".": { m: "grass" },
+  },
+  map:
+    "........\n" +
+    "........\n" +
+    "........\n" +
+    "........\n" +
+    "........\n" +
+    "........\n" +
+    "........\n" +
+    "........\n",
 };
 
 const levelData = [basement, house, outside];
 
-export { levelData, tileset };
+export { levelData, models };
